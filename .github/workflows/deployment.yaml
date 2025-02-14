@@ -5,8 +5,8 @@ on:
     inputs:
       button_name:
         description: 'Setup app'
-env:
-  BUILD_NAME: "${{ vars.APP_NAME }}:${{ vars.APP_VERSION }}"
+#env:
+#  BUILD_NAME: "${{ vars.APP_NAME }}:${{ vars.APP_VERSION }}"
 jobs:
   build-test-deploy:
     runs-on: ubuntu-latest
