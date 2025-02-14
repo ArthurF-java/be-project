@@ -17,12 +17,12 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping()
-    ResponseEntity<List<ProfileResponse>> getAll() {
+    public ResponseEntity<List<ProfileResponse>> getAll() {
         return ResponseEntity.ok(profileService.getAll());
     }
 
     @PostMapping
-    ResponseEntity<?> create(@RequestParam String name, @RequestParam String surname) {
+    public ResponseEntity<?> create(@RequestParam String name, @RequestParam String surname) {
         profileService.create(name, surname);
         return ResponseEntity.ok().build();
     }

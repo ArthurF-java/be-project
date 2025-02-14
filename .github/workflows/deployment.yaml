@@ -1,12 +1,11 @@
-name: Docker-compose
+name: App buid
 
 on:
-  workflow_dispatch:
-    inputs:
-      button_name:
-        description: 'Setup app'
-#env:
-#  BUILD_NAME: "${{ vars.APP_NAME }}:${{ vars.APP_VERSION }}"
+  push:
+    branches:
+      - dev
+env:
+  BUILD_NAME: "${{ vars.DOCKER_HUB_USERNAME }}/${{ vars.PROJECT_NAME }}"
 jobs:
   build-test-deploy:
     runs-on: ubuntu-latest
@@ -14,6 +13,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set FULL_BUILD_NAME
+        id: extract-full-build-name
+        run: |
+          FULL_BUILD_NAME=$BUILD_NAME:${{ github.sha }}
+          echo "FULL_BUILD_NAME=$FULL_BUILD_NAME" >> $GITHUB_ENV
+
+      - name: Extract branch name
+        run: |
+          CURRENT_BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          echo "CURRENT_BRANCH=$CURRENT_BRANCH" >> $GITHUB_ENV
 
       - name: Extract branch name
         shell: bash
@@ -27,37 +37,119 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run unit tests&build
+      - name: Run unit tests && build
         run: mvn --batch-mode clean package
-
-      - name: Build docker image
-        run: docker build -t ${{ env.BUILD_NAME }} .
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          username: ${{ vars.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/${{ vars.PROJECT_NAME }}${{ steps.extract_branch.outputs.branch }}:${GITHUB_SHA} .
+        run: docker build -t $FULL_BUILD_NAME .
 
-      - name: check images
-        run: docker images
+      - name: Push Docker image
+        run: docker push $FULL_BUILD_NAME
 
-#      - name: Log in to the Container registry
-#        uses: docker/login-action@v3
+      - name: Update Chart.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'helm/beproject/Chart.yaml'
+          changes: |
+            {
+              "version": "${{ github.sha }}",
+              "version": "1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}"
+            }
+          commitChange: false
+
+      - name: Update Values.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'helm/beproject/values.yaml'
+          changes: |
+            {
+              "image.repository": "${{ vars.DOCKER_HUB_USERNAME }}/${{ vars.PROJECT_NAME }}",
+              "image.tag": "${{ github.sha }}",
+              "namespace": "${{ steps.extract_branch.outputs.branch }}",
+              "ingress.host": "${{ steps.extract_branch.outputs.branch }}${{ vars.URL_POSTFIX }}"
+            }
+          commitChange: false
+
+      - name: Clone helm repository
+        run: |
+          git clone https://github.com/ArthurF-java/helm-be.git
+          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
+
+      - name: Set up global config
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: push to helm repository
+        run: |
+          cd helm-be
+          helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
+          git add --all
+          git commit -m "${{ steps.extract_branch.outputs.branch }}"
+          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
+          cd ..
+
+
+
+
+
+
+
+
+
+
+
+
+
+#      - name: Cat updated files
+#        run: |
+#          cat helm/beproject/Chart.yaml
+#          echo "+++++++++++++++++++"
+#          cat helm/beproject/values.yaml
+
+
+
+#      - name: Run chart-releaser
+#        uses: helm/chart-releaser-action@v1.7.0
 #        with:
-#          registry: ghcr.io
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.CR_TOKEN }}
+#          skip_packaging: true
+##          charts_dir: ./packaged-charts
+#          charts_dir: ./helm
+#          config: helm/cr.yaml
+#          pages_branch: dev
+#        env:
+#          CR_TOKEN: "${{ secrets.TOKEN_GITHUB }}"
+
+
+#      - name: Extract version from pom.xml
+#        id: extract-version
+#        run: |
+#          CURRENT_VERSION=$((mvn help:evaluate -Dexpression=project.version -q -DforceStdout) | sed 's/-SNAPSHOT//')
+#          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
 #
-#      - name: Build and push Docker images
-#        uses: docker/build-push-action@v2
-#        with:
-#          context: .
-#          push: true
-#          tags: ghcr.io/arthurf-java/${{ env.BUILD_NAME }}
+#      - name: Print commit hash
+#        run: echo ${{ github.sha }}
+
+#      - name: Extract branch name
+#        shell: bash
+#        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+#        id: extract_branch
+
+#      - name: Set FULL_BUILD_NAME
+#        id: extract-full-build-name
+#        run: |
+#          FULL_BUILD_NAME=$BUILD_NAME-${{ steps.extract_branch.outputs.branch }}:${{ github.sha }}
+#          echo "FULL_BUILD_NAME=$FULL_BUILD_NAME" >> $GITHUB_ENV
+
+
+
+
 
 #      - name: Slack Notification
 #        if: success()

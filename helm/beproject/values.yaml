@@ -1,0 +1,33 @@
+replicaCount: 1
+
+image:
+  repository: {}
+  tag: {}
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8090
+
+ingress:
+  enabled: true
+  host: {}
+  path: /
+  annotations: {}
+  tls: []
+
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 500m
+  limits:
+    memory: 512Mi
+    cpu: 500m
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+namespace: env
