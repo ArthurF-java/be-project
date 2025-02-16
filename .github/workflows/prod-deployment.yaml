@@ -77,6 +77,9 @@ jobs:
             }
           commitChange: false
 
+      - name: cat values
+        run: helm/beproject/values.yaml
+
       - name: Clone helm repository
         run: |
           git clone https://github.com/ArthurF-java/helm-be.git
