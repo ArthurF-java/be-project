@@ -15,6 +15,6 @@ public class VersionController {
 
     @GetMapping()
     public ResponseEntity<VersionResponse> getVersion() {
-        return ResponseEntity.ok(new VersionResponse("3.0.1"));
+        return ResponseEntity.ok(new VersionResponse("4.0.0"));
     }
 }
