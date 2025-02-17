@@ -23,11 +23,6 @@ jobs:
           echo "FULL_BUILD_NAME=$FULL_BUILD_NAME" >> $GITHUB_ENV
 
       - name: Extract branch name
-        run: |
-          CURRENT_BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-          echo "CURRENT_BRANCH=$CURRENT_BRANCH" >> $GITHUB_ENV
-
-      - name: Extract branch name
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
@@ -66,7 +61,7 @@ jobs:
           commitChange: false
 
       - name: Update Values.yaml dev/test
-        if: ${{ steps.extract_branch.outputs.branch }} != prod
+        if: steps.extract_branch.outputs.branch != 'prod'
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'helm/beproject/values.yaml'
@@ -80,7 +75,7 @@ jobs:
           commitChange: false
 
       - name: Update Values.yaml prod
-        if: ${{ steps.extract_branch.outputs.branch }} == prod
+        if: steps.extract_branch.outputs.branch == 'prod'
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'helm/beproject/values.yaml'
