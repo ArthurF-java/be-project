@@ -1,4 +1,4 @@
-package com.beproject.data;
+package com.beproject.data.profile;
 
 import java.util.UUID;
 
