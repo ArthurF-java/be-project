@@ -1,6 +1,7 @@
 package com.beproject.controller;
 
-import com.beproject.data.ProfileResponse;
+import com.beproject.data.profile.ProfileCreateRequestDto;
+import com.beproject.data.profile.ProfileResponse;
 import com.beproject.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/profiles")
 public class ProfileController {
 
     private final ProfileService profileService;
@@ -22,8 +23,8 @@ public class ProfileController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestParam String name, @RequestParam String surname) {
-        profileService.create(name, surname);
+    public ResponseEntity<?> create(@RequestBody ProfileCreateRequestDto dto) {
+        profileService.create(dto);
         return ResponseEntity.ok().build();
     }
 }
