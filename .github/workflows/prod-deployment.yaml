@@ -77,9 +77,6 @@ jobs:
             }
           commitChange: false
 
-      - name: cat values
-        run: helm/beproject/values.yaml
-
       - name: Clone helm repository
         run: |
           git clone https://github.com/ArthurF-java/helm-be.git
@@ -98,6 +95,7 @@ jobs:
           git commit -m "${{ steps.extract_branch.outputs.branch }}"
           git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
           cd ..
+
 
       - name: Ping helm repo until it returns 200
         run: |
