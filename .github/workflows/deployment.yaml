@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - test
+      - prod
 env:
   BUILD_NAME: "${{ vars.DOCKER_HUB_USERNAME }}/${{ vars.PROJECT_NAME }}"
 jobs:
@@ -64,7 +65,8 @@ jobs:
             }
           commitChange: false
 
-      - name: Update Values.yaml
+      - name: Update Values.yaml dev/test
+        if: ${{ steps.extract_branch.outputs.branch }} != prod
         uses: fjogeleit/yaml-update-action@main
         with:
           valueFile: 'helm/beproject/values.yaml'
@@ -74,6 +76,21 @@ jobs:
               "image.tag": "${{ github.sha }}",
               "namespace": "${{ steps.extract_branch.outputs.branch }}",
               "ingress.host": "${{ steps.extract_branch.outputs.branch }}${{ vars.URL_POSTFIX }}"
+            }
+          commitChange: false
+
+      - name: Update Values.yaml prod
+        if: ${{ steps.extract_branch.outputs.branch }} == prod
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'helm/beproject/values.yaml'
+          changes: |
+            {
+              "image.repository": "${{ vars.DOCKER_HUB_USERNAME }}/${{ vars.PROJECT_NAME }}",
+              "image.tag": "${{ github.sha }}",
+              "namespace": "${{ steps.extract_branch.outputs.branch }}",
+              "ingress.host": "${{ steps.extract_branch.outputs.branch }}${{ vars.URL_POSTFIX }}",
+              "replicaCount": "${{ vars.PROD_REPLICA_COUNT }}"
             }
           commitChange: false
 
@@ -142,7 +159,7 @@ jobs:
           git commit -m "${{ steps.extract_branch.outputs.branch }}"
           git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
 
-      - name: Slack Notification
+      - name: Slack Notification Success
         if: success()
         uses: rtCamp/action-slack-notify@v2
         env:
@@ -154,7 +171,7 @@ jobs:
           SLACK_USERNAME: fonichkin
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
-      - name: Slack Notification
+      - name: Slack Notification Failure
         if: failure()
         uses: rtCamp/action-slack-notify@v2
         env:
