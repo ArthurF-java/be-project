@@ -1,6 +1,7 @@
 package com.beproject.controller;
 
 
+import com.beproject.data.varsion.VersionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class VersionController {
 
     @GetMapping()
-    public ResponseEntity<String> getVersion() {
-        return ResponseEntity.ok("3.0.1");
+    public ResponseEntity<VersionResponse> getVersion() {
+        return ResponseEntity.ok(new VersionResponse("4.0.0"));
     }
 }

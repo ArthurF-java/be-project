@@ -2,7 +2,8 @@ package com.beproject.service.impl;
 
 import com.beproject.dao.entity.ProfileEntity;
 import com.beproject.dao.repository.ProfileRepository;
-import com.beproject.data.ProfileResponse;
+import com.beproject.data.profile.ProfileCreateRequestDto;
+import com.beproject.data.profile.ProfileResponse;
 import com.beproject.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,10 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public void create(String name, String surname) {
+    public void create(ProfileCreateRequestDto dto) {
         ProfileEntity entity = ProfileEntity.builder()
-                .name(name)
-                .surname(surname).build();
+                .name(dto.name())
+                .surname(dto.surname()).build();
         profileRepository.save(entity);
     }
 }

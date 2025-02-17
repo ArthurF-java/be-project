@@ -45,6 +45,11 @@ spec:
                 secretKeyRef:
                   name: secret-kv
                   key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: secret-kv
+                  key: REDIS_PORT
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
