@@ -16,30 +16,10 @@ public class RedisConfig {
 
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
-//        final LettuceClientConfiguration clientConfig = getLettuceClientConfiguration(redisProperties);
         final RedisStandaloneConfiguration serverConfig = getRedisStandaloneConfiguration(redisProperties);
 
         return new LettuceConnectionFactory(serverConfig);
     }
-
-//    private LettuceClientConfiguration getLettuceClientConfiguration(RedisProperties properties) {
-//        final SocketOptions socketOptions = SocketOptions.builder()
-//                .connectTimeout(properties.getConnectTimeout())
-//                .keepAlive(true)
-//                .build();
-//
-//        final ClientOptions clientOptions = ClientOptions.builder()
-//                .socketOptions(socketOptions)
-//                .suspendReconnectOnProtocolFailure(false)
-//                .autoReconnect(true)
-//                .build();
-//
-//        return LettuceClientConfiguration.builder()
-//                .commandTimeout(properties.getTimeout())
-//                .clientOptions(clientOptions)
-//                .disablePeerVerification()
-//                .build();
-//    }
 
     private RedisStandaloneConfiguration getRedisStandaloneConfiguration(RedisProperties properties) {
         final RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration();
