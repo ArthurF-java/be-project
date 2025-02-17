@@ -105,6 +105,8 @@ jobs:
           helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
           git add --all
           git commit -m "${{ steps.extract_branch.outputs.branch }}"
+          git fetch
+          git pull
           git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
           cd ..
 
