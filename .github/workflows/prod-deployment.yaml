@@ -99,6 +99,30 @@ jobs:
           git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
           cd ..
 
+      - name: Ping helm repo until it returns 200
+        run: |
+          url="${{ vars.HELM_REPO_URL }}${{ steps.extract_branch.outputs.branch }}/beproject-1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}.tgz"
+          max_attempts=40
+          attempt=1
+          sleep_duration=5
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt: Pinging $url..."
+            response_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+
+            if [ "$response_code" -eq 200 ]; then
+              echo "Success: Received HTTP 200!"
+              exit 0
+            else
+              echo "Failed: Received HTTP $response_code. Retrying in $sleep_duration seconds..."
+              sleep $sleep_duration
+              attempt=$((attempt + 1))
+            fi
+          done
+
+          echo "Error: Max attempts reached. Exiting."
+          exit 1
+
       - name: clone ArgoCD
         run: |
           git clone https://github.com/ArthurF-java/argo-cd.git
@@ -120,26 +144,25 @@ jobs:
           git commit -m "${{ steps.extract_branch.outputs.branch }}"
           git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
 
+      - name: Slack Notification
+        if: success()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: afon-check
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_MESSAGE: 'Post Content :rocket:'
+          SLACK_TITLE: 'Deploy be is done for image 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}'
+          SLACK_USERNAME: fonichkin
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
-#      - name: Slack Notification
-#        if: success()
-#        uses: rtCamp/action-slack-notify@v2
-#        env:
-#          SLACK_CHANNEL: afon-check
-#          SLACK_COLOR: ${{ job.status }}
-#          SLACK_ICON: https://github.com/rtCamp.png?size=48
-#          SLACK_MESSAGE: 'Post Content :rocket:'
-#          SLACK_TITLE: 'Deploy is done'
-#          SLACK_USERNAME: fonichkin
-#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }} ### full address with https://.....
-#
-#      - name: Slack Notification
-#        if: failure()
-#        uses: rtCamp/action-slack-notify@v2
-#        env:
-#          SLACK_CHANNEL: afon-check
-#          SLACK_COLOR: ${{ job.status }}
-#          SLACK_ICON: https://github.com/rtCamp.png?size=48
-#          SLACK_TITLE: 'Deploy failed'
-#          SLACK_USERNAME: fonichkin
-#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }} ### full address with https://.....
+      - name: Slack Notification
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: afon-check
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_TITLE: 'Deploy be is failed for image 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}'
+          SLACK_USERNAME: fonichkin
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
