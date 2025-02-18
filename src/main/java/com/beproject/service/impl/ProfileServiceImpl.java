@@ -30,4 +30,9 @@ public class ProfileServiceImpl implements ProfileService {
                 .surname(dto.surname()).build();
         profileRepository.save(entity);
     }
+
+    @Override
+    public void deleteAll() {
+        profileRepository.deleteAll();
+    }
 }

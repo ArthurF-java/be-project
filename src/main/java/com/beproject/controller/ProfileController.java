@@ -6,6 +6,8 @@ import com.beproject.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,9 +24,16 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.getAll());
     }
 
+    @Validated
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ProfileCreateRequestDto dto) {
         profileService.create(dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteAll() {
+        profileService.deleteAll();
         return ResponseEntity.ok().build();
     }
 }
