@@ -8,4 +8,6 @@ public interface ProfileService {
     List<ProfileResponse> getAll();
 
     void create(ProfileCreateRequestDto dto);
+
+    void deleteAll();
 }
