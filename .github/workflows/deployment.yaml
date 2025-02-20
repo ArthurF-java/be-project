@@ -107,6 +107,7 @@ jobs:
           command: |
                 cd helm-be
                 ls
+                git status
                 git fetch
                 git pull
                 helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
