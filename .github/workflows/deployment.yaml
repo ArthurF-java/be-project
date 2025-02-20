@@ -89,16 +89,20 @@ jobs:
             }
           commitChange: false
 
-      - name: Clone helm repository
-        run: |
-          git clone https://github.com/ArthurF-java/helm-be.git
-          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
-          cd helm-be
-
       - name: Set up global config
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
+
+      - name: Clone helm repository
+        run: |
+          git clone https://github.com/ArthurF-java/helm-be.git
+          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
+
+      - name: cd helm-be
+        run: |
+          cd helm-be
+          ls
 
       - name: Push to helm repository with retries
         uses: nick-fields/retry@v3
@@ -152,7 +156,11 @@ jobs:
       - name: clone ArgoCD
         run: |
           git clone https://github.com/ArthurF-java/argo-cd.git
-          cd argo-cd
+
+      - name: cd ArgoCD
+        run: |
+          cd helm-be
+          ls
 
       - name: Update ArgoCD application.yaml
         uses: fjogeleit/yaml-update-action@main
