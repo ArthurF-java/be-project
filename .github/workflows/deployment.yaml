@@ -43,11 +43,11 @@ jobs:
           username: ${{ vars.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-#      - name: Build Docker image
-#        run: docker build -t $FULL_BUILD_NAME .
-#
-#      - name: Push Docker image
-#        run: docker push $FULL_BUILD_NAME
+      - name: Build Docker image
+        run: docker build -t $FULL_BUILD_NAME .
+
+      - name: Push Docker image
+        run: docker push $FULL_BUILD_NAME
 
       - name: Update Chart.yaml
         uses: fjogeleit/yaml-update-action@main
@@ -99,16 +99,31 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
 
-      - name: Push to helm repository
-        run: |
-          cd helm-be
-          git fetch
-          git pull
-          helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
-          git add --all
-          git commit -m "${{ steps.extract_branch.outputs.branch }}"
-          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
-          cd ..
+      - name: Push to helm repository with retries
+          uses: nick-fields/retry@v3
+          with:
+            timeout_seconds: 10
+            max_attempts: 5
+            command: |
+                  cd helm-be
+                  git fetch
+                  git pull
+                  helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
+                  git add --all
+                  git commit -m "${{ steps.extract_branch.outputs.branch }}"
+                  git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
+                  cd ..
+
+#      - name: Push to helm repository
+#        run: |
+#          cd helm-be
+#          git fetch
+#          git pull
+#          helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
+#          git add --all
+#          git commit -m "${{ steps.extract_branch.outputs.branch }}"
+#          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
+#          cd ..
 
       - name: Ping helm repo until it returns 200
         run: |
