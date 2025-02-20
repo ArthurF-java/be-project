@@ -157,7 +157,7 @@ jobs:
       - name: Update ArgoCD application.yaml
         uses: fjogeleit/yaml-update-action@main
         with:
-          valueFile: '${{ steps.extract_branch.outputs.branch }}/application.yaml'
+          valueFile: 'argo-cd/${{ steps.extract_branch.outputs.branch }}/application.yaml'
           changes: |
             {
               "spec.source.targetRevision": "1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}"
