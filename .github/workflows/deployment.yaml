@@ -100,19 +100,19 @@ jobs:
           git config --global user.name "GitHub Actions"
 
       - name: Push to helm repository with retries
-          uses: nick-fields/retry@v3
-          with:
-            timeout_seconds: 10
-            max_attempts: 5
-            command: |
-                  cd helm-be
-                  git fetch
-                  git pull
-                  helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
-                  git add --all
-                  git commit -m "${{ steps.extract_branch.outputs.branch }}"
-                  git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
-                  cd ..
+        uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 10
+          max_attempts: 5
+          command: |
+                cd helm-be
+                git fetch
+                git pull
+                helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
+                git add --all
+                git commit -m "${{ steps.extract_branch.outputs.branch }}"
+                git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
+                cd ..
 
 #      - name: Push to helm repository
 #        run: |
