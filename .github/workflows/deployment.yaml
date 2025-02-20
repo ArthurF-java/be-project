@@ -97,7 +97,7 @@ jobs:
       - name: Clone helm repository
         run: |
           git clone https://github.com/ArthurF-java/helm-be.git
-          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
+#          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
 
       - name: Push to helm repository with retries
         uses: nick-fields/retry@v3
@@ -106,10 +106,14 @@ jobs:
           max_attempts: 5
           command: |
                 cd helm-be
-                ls
-                git status
                 git fetch
                 git pull
+                git status
+                git reset --hard origin/${{ steps.extract_branch.outputs.branch }}
+                echo 'second status ++++++++++++++++++++++++++'
+                git status
+                helm package helm/beproject -d ./${{ steps.extract_branch.outputs.branch }}
+                ls dev/
                 helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
                 git add --all
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
