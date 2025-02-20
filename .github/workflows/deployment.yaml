@@ -97,7 +97,7 @@ jobs:
       - name: Clone helm repository
         run: |
           git clone https://github.com/ArthurF-java/helm-be.git
-          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
+#          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
 
       - name: Push to helm repository with retries
         uses: nick-fields/retry@v3
@@ -106,9 +106,18 @@ jobs:
           max_attempts: 5
           command: |
                 cd helm-be
-                ls
                 git fetch
                 git pull
+                git status
+                git reset --hard origin/main
+                echo 'second status ++++++++++++++++++++++++++'
+                git status
+                echo 'check dev folder before'
+                ls dev/
+                helm package ../helm/beproject -d ./${{ steps.extract_branch.outputs.branch }}
+                echo "version: 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}"
+                echo 'check dev folder'
+                ls dev/
                 helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
                 git add --all
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
@@ -164,14 +173,14 @@ jobs:
             }
           commitChange: false
 
-      - name: Pust to ArgoCD repository
-        run: |
-          cd argo-cd
-          git add --all
-          git commit -m "${{ steps.extract_branch.outputs.branch }}"
-          git fetch
-          git pull
-          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
+#      - name: Pust to ArgoCD repository
+#        run: |
+#          cd argo-cd
+#          git add --all
+#          git commit -m "${{ steps.extract_branch.outputs.branch }}"
+#          git fetch
+#          git pull
+#          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
 
       - name: Pust to ArgoCD repository with retries
         uses: nick-fields/retry@v3
@@ -180,7 +189,6 @@ jobs:
           max_attempts: 5
           command: |
                 cd argo-cd
-                ls
                 git fetch
                 git pull
                 git add --all
