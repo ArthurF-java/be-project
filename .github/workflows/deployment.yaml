@@ -180,11 +180,10 @@ jobs:
           max_attempts: 5
           command: |
                 cd argo-cd
-                ls
-                git fetch
-                git pull
                 git add --all
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
+                git fetch
+                git pull
                 git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
 
       - name: Slack Notification Success
