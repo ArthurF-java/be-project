@@ -99,10 +99,10 @@ jobs:
           git clone https://github.com/ArthurF-java/helm-be.git
           helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
 
-      - name: cd helm-be
-        run: |
-          cd helm-be
-          ls
+#      - name: cd helm-be
+#        run: |
+#          cd helm-be
+#          ls
 
       - name: Push to helm repository with retries
         uses: nick-fields/retry@v3
@@ -110,13 +110,17 @@ jobs:
           timeout_seconds: 10
           max_attempts: 5
           command: |
+                ls
+                cd helm-be
+                echo 'helm be++++++++'
+                ls
                 git fetch
                 git pull
                 helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
                 git add --all
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
                 git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
-                cd ..
+#                cd ..
 
 #      - name: Push to helm repository
 #        run: |
@@ -153,24 +157,23 @@ jobs:
           echo "Error: Max attempts reached. Exiting."
           exit 1
 
-      - name: clone ArgoCD
-        run: |
-          git clone https://github.com/ArthurF-java/argo-cd.git
+#      - name: clone ArgoCD
+#        run: |
+#          git clone https://github.com/ArthurF-java/argo-cd.git
 
       - name: cd ArgoCD
         run: |
-          cd helm-be
           ls
 
-      - name: Update ArgoCD application.yaml
-        uses: fjogeleit/yaml-update-action@main
-        with:
-          valueFile: '${{ steps.extract_branch.outputs.branch }}/application.yaml'
-          changes: |
-            {
-              "spec.source.targetRevision": "1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}"
-            }
-          commitChange: false
+#      - name: Update ArgoCD application.yaml
+#        uses: fjogeleit/yaml-update-action@main
+#        with:
+#          valueFile: '${{ steps.extract_branch.outputs.branch }}/application.yaml'
+#          changes: |
+#            {
+#              "spec.source.targetRevision": "1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}"
+#            }
+#          commitChange: false
 
 #      - name: Pust to ArgoCD repository
 #        run: |
@@ -181,37 +184,38 @@ jobs:
 #          git pull
 #          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
 
-      - name: Pust to ArgoCD repository with retries
-        uses: nick-fields/retry@v3
-        with:
-          timeout_seconds: 10
-          max_attempts: 5
-          command: |
-                git add --all
-                git commit -m "${{ steps.extract_branch.outputs.branch }}"
-                git fetch
-                git pull
-                git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
-
-      - name: Slack Notification Success
-        if: success()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_CHANNEL: afon-check
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_ICON: https://github.com/rtCamp.png?size=48
-          SLACK_MESSAGE: 'Post Content :rocket:'
-          SLACK_TITLE: 'Deploy be is done for image 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}'
-          SLACK_USERNAME: fonichkin
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-
-      - name: Slack Notification Failure
-        if: failure()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_CHANNEL: afon-check
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_ICON: https://github.com/rtCamp.png?size=48
-          SLACK_TITLE: 'Deploy be is failed for image 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}'
-          SLACK_USERNAME: fonichkin
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#      - name: Pust to ArgoCD repository with retries
+#        uses: nick-fields/retry@v3
+#        with:
+#          timeout_seconds: 10
+#          max_attempts: 5
+#          command: |
+#                cd argo-cd
+#                git add --all
+#                git commit -m "${{ steps.extract_branch.outputs.branch }}"
+#                git fetch
+#                git pull
+#                git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
+#
+#      - name: Slack Notification Success
+#        if: success()
+#        uses: rtCamp/action-slack-notify@v2
+#        env:
+#          SLACK_CHANNEL: afon-check
+#          SLACK_COLOR: ${{ job.status }}
+#          SLACK_ICON: https://github.com/rtCamp.png?size=48
+#          SLACK_MESSAGE: 'Post Content :rocket:'
+#          SLACK_TITLE: 'Deploy be is done for image 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}'
+#          SLACK_USERNAME: fonichkin
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#
+#      - name: Slack Notification Failure
+#        if: failure()
+#        uses: rtCamp/action-slack-notify@v2
+#        env:
+#          SLACK_CHANNEL: afon-check
+#          SLACK_COLOR: ${{ job.status }}
+#          SLACK_ICON: https://github.com/rtCamp.png?size=48
+#          SLACK_TITLE: 'Deploy be is failed for image 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}'
+#          SLACK_USERNAME: fonichkin
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
