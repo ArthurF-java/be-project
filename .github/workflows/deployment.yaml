@@ -19,7 +19,9 @@ jobs:
         with:
           timeout_seconds: 15
           max_attempts: 3
-          command: cat asd.yaml
+          command: |
+                ls
+                cat asd.yaml
 #      - name: Checkout repository
 #        uses: actions/checkout@v4
 #
