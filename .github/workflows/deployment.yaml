@@ -109,10 +109,11 @@ jobs:
                 git fetch
                 git pull
                 git status
-                git reset --hard origin/${{ steps.extract_branch.outputs.branch }}
+                git reset --hard origin/main
                 echo 'second status ++++++++++++++++++++++++++'
                 git status
                 helm package helm/beproject -d ./${{ steps.extract_branch.outputs.branch }}
+                echo 'check dev folder'
                 ls dev/
                 helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
                 git add --all
