@@ -89,16 +89,15 @@ jobs:
             }
           commitChange: false
 
-      - name: Clone helm repository
-        run: |
-          git clone https://github.com/ArthurF-java/helm-be.git
-          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
-          cd helm-be
-
       - name: Set up global config
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
+
+      - name: Clone helm repository
+        run: |
+          git clone https://github.com/ArthurF-java/helm-be.git
+          helm package helm/beproject -d ./helm-be/${{ steps.extract_branch.outputs.branch }}
 
       - name: Push to helm repository with retries
         uses: nick-fields/retry@v3
@@ -106,13 +105,14 @@ jobs:
           timeout_seconds: 10
           max_attempts: 5
           command: |
+                cd helm-be
+                ls
                 git fetch
                 git pull
                 helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
                 git add --all
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
                 git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
-                cd ..
 
 #      - name: Push to helm repository
 #        run: |
@@ -151,27 +151,27 @@ jobs:
 
       - name: clone ArgoCD
         run: |
+          ls
           git clone https://github.com/ArthurF-java/argo-cd.git
-          cd argo-cd
 
       - name: Update ArgoCD application.yaml
         uses: fjogeleit/yaml-update-action@main
         with:
-          valueFile: '${{ steps.extract_branch.outputs.branch }}/application.yaml'
+          valueFile: 'argo-cd/${{ steps.extract_branch.outputs.branch }}/application.yaml'
           changes: |
             {
               "spec.source.targetRevision": "1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}"
             }
           commitChange: false
 
-#      - name: Pust to ArgoCD repository
-#        run: |
-#          cd argo-cd
-#          git add --all
-#          git commit -m "${{ steps.extract_branch.outputs.branch }}"
-#          git fetch
-#          git pull
-#          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
+      - name: Pust to ArgoCD repository
+        run: |
+          cd argo-cd
+          git add --all
+          git commit -m "${{ steps.extract_branch.outputs.branch }}"
+          git fetch
+          git pull
+          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
 
       - name: Pust to ArgoCD repository with retries
         uses: nick-fields/retry@v3
@@ -179,6 +179,7 @@ jobs:
           timeout_seconds: 10
           max_attempts: 5
           command: |
+                cd argo-cd
                 git add --all
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
                 git fetch
