@@ -119,7 +119,7 @@ jobs:
                 echo 'check dev folder'
                 ls dev/
                 helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
-                git add ./${{ steps.extract_branch.outputs.branch }}/
+                git add --all
                 echo 'status =========='
                 git status
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
