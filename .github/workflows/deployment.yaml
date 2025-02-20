@@ -191,6 +191,7 @@ jobs:
                 cd argo-cd
                 git fetch
                 git pull
+                git reset origin/main
                 git add --all
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
                 git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
