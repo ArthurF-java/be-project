@@ -120,6 +120,8 @@ jobs:
                 ls dev/
                 helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
                 git add --all
+                echo 'status =========='
+                git status
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
                 git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
 
@@ -192,7 +194,7 @@ jobs:
                 git fetch
                 git pull
                 git reset origin/main
-                git add --all
+                git add ./${{ steps.extract_branch.outputs.branch }}/
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
                 git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
 
