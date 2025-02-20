@@ -112,6 +112,8 @@ jobs:
                 git reset --hard origin/main
                 echo 'second status ++++++++++++++++++++++++++'
                 git status
+                echo 'check dev folder before'
+                ls dev/
                 helm package ../helm/beproject -d ./${{ steps.extract_branch.outputs.branch }}
                 echo "version: 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}"
                 echo 'check dev folder'
