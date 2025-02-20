@@ -68,7 +68,7 @@ jobs:
           changes: |
             {
               "image.repository": "${{ vars.DOCKER_HUB_USERNAME }}/${{ vars.PROJECT_NAME }}",
-              "image.tag": "${{ github.sha }}",
+              "image.tag": "${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}",
               "namespace": "${{ steps.extract_branch.outputs.branch }}",
               "ingress.host": "${{ steps.extract_branch.outputs.branch }}${{ vars.URL_POSTFIX }}"
             }
@@ -82,7 +82,7 @@ jobs:
           changes: |
             {
               "image.repository": "${{ vars.DOCKER_HUB_USERNAME }}/${{ vars.PROJECT_NAME }}",
-              "image.tag": "${{ github.sha }}",
+              "image.tag": "${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}",
               "namespace": "${{ steps.extract_branch.outputs.branch }}",
               "ingress.host": "${{ steps.extract_branch.outputs.branch }}${{ vars.URL_POSTFIX }}",
               "replicaCount": "${{ vars.PROD_REPLICA_COUNT }}"
