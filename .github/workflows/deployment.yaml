@@ -14,7 +14,12 @@ jobs:
 
     steps:
       - name: check
-        run: cat asd.yaml
+#        run: cat asd.yaml
+        uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 15
+          max_attempts: 3
+          command: cat asd.yaml
 #      - name: Checkout repository
 #        uses: actions/checkout@v4
 #
