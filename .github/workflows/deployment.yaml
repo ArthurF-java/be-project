@@ -125,17 +125,6 @@ jobs:
                 git commit -m "${{ steps.extract_branch.outputs.branch }}"
                 git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
 
-#      - name: Push to helm repository
-#        run: |
-#          cd helm-be
-#          git fetch
-#          git pull
-#          helm repo index --url "https://arthurf-java.github.io/helm-be/" --merge index.yaml .
-#          git add --all
-#          git commit -m "${{ steps.extract_branch.outputs.branch }}"
-#          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/helm-be.git main
-#          cd ..
-
       - name: Ping helm repo until it returns 200
         run: |
           url="${{ vars.HELM_REPO_URL }}${{ steps.extract_branch.outputs.branch }}/beproject-1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}.tgz"
@@ -175,15 +164,6 @@ jobs:
             }
           commitChange: false
 
-#      - name: Pust to ArgoCD repository
-#        run: |
-#          cd argo-cd
-#          git add --all
-#          git commit -m "${{ steps.extract_branch.outputs.branch }}"
-#          git fetch
-#          git pull
-#          git push https://${{ secrets.TOKEN_GITHUB }}@github.com/arthurf-java/argo-cd.git main
-
       - name: Pust to ArgoCD repository with retries
         uses: nick-fields/retry@v3
         with:
@@ -214,7 +194,7 @@ jobs:
         if: failure()
         uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_CHANNEL: afon-check
+          SLACK_CHANNEL: afon-error
           SLACK_COLOR: ${{ job.status }}
           SLACK_ICON: https://github.com/rtCamp.png?size=48
           SLACK_TITLE: 'Deploy be is failed for image 1-${{ steps.extract_branch.outputs.branch }}-${{ github.sha }}'
